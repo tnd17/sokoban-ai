@@ -1,0 +1,7 @@
+Thư mục này chứa phần giao diện của chương trình.
+Bao gồm:
+- Hiển thị bản đồ Sokoban
+- Hiển thị nhân vật và thùng
+- Menu chọn level
+- Menu chọn thuật toán
+- Hiển thị quá trình giải bài toán (animation)

@@ -1,0 +1,3 @@
+Thư mục này chứa các hàm heuristic dùng cho các thuật toán tìm kiếm.
+Heuristic giúp ước lượng khoảng cách từ trạng thái hiện tại đến trạng thái đích
+để thuật toán tìm kiếm hoạt động hiệu quả hơn.

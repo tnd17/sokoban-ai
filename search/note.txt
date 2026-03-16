@@ -1,0 +1,5 @@
+Thư mục này chứa phần cài đặt các thuật toán tìm kiếm.
+Các thuật toán sẽ được sử dụng để tìm chuỗi hành động giúp giải màn Sokoban.
+Dự kiến các thuật toán gồm:
+- Greedy Best-First Search
+- A* Search

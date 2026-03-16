@@ -1,0 +1,6 @@
+Thư mục này chứa phần biểu diễn trạng thái của bài toán Sokoban.
+Một trạng thái bao gồm:
+- Vị trí của người chơi
+- Vị trí của các thùng
+- Bản đồ hiện tại
+Ngoài ra còn có các hàm sinh trạng thái mới khi người chơi thực hiện các hành động.
