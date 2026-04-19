@@ -1,2 +1,12 @@
 Thư mục này chứa các file bản đồ (level) của trò chơi
 Mỗi file mô tả bố cục của màn chơi gồm tường, người chơi, thùng, vị trí đích, ...
+
+Chúng ta sẽ sử dụng các ký tự quy ước để vẽ map:
+#: Tường (Wall)
+@: Người chơi (Player)
+$: Hộp (Box)
+.: Đích (Goal)
++: Người đứng trên đích
+*: Hộp đứng trên đích
+(Space): Ô trống
+
