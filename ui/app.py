@@ -54,7 +54,7 @@ class SokobanApp:
                 self.current_screen.screen = self.screen
                 self.current_screen.handle_event(event, mouse_pos)
 
-            if isinstance(self.current_screen, GameScreen):
+            if isinstance(self.current_screen, (GameScreen, MenuScreen)):
                 self.current_screen.update(dt)
 
             result = getattr(self.current_screen, 'result', None)

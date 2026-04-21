@@ -59,6 +59,7 @@ def draw_progress_bar(surf, rect, progress, color=ACCENT, bg=BTN_BG, radius=5):
 
 class MenuScreen:
     ALGOS = [('greedy', 'Greedy Best-First'), ('astar', 'A* Search')]
+    SPEEDS = [('0.5×', 0.85), ('1×', 0.42), ('2×', 0.20), ('4×', 0.08), ('8×', 0.03)]
 
     def __init__(self, screen, fonts, map_list):
         self.screen       = screen
@@ -66,56 +67,167 @@ class MenuScreen:
         self.map_list     = map_list
         self.map_idx      = 0
         self.algo_idx     = 1          # default A*
+        self.speed_idx    = 1          # default 1×
         self.result       = None
+        
+        # Animation state
+        self.initial_state = None
+        self.state         = None
+        self.solving       = False
+        self.solve_result  = None
+        self.animating     = False
+        self.anim_index    = 0
+        self.anim_states   = []
+        self.anim_timer    = 0.0
+        self.finished      = False
+        self.paused        = False
+        self.status_msg    = ""
+        self.error_msg     = ""
+        self.stats         = None
+        
+        self._load_current_map()
+
+    def _load_current_map(self):
+        from utils.map_loader import load_map
+        if self.map_list:
+            _, path = self.map_list[self.map_idx]
+            self.initial_state = load_map(path)
+            self.state = load_map(path)
 
     @property
     def selected_algo(self):
         return self.ALGOS[self.algo_idx][0]
 
+    # ── worker ───────────────────────────────────────────────────────────────
+    def _solve_worker(self):
+        from heuristic.heuristics import get_heuristic
+        from search.algorithms import solve
+        from utils.map_loader import get_map_raw_grid
+        _, path = self.map_list[self.map_idx]
+        grid = get_map_raw_grid(path)
+        h    = get_heuristic(self.selected_algo, grid, self.initial_state.targets,
+                             use_optimized=True)
+        self.solve_result = solve(self.initial_state, self.selected_algo, h, 60.0)
+        self.solving      = False
+
+    def _build_anim_states(self, actions):
+        from game.rules import move_player
+        states = [self.initial_state]
+        cur    = self.initial_state
+        for a in actions:
+            ns = move_player(cur, a)
+            if ns: states.append(ns); cur = ns
+        return states
+
+    def _reset(self):
+        from utils.map_loader import load_map
+        if self.map_list:
+            _, path = self.map_list[self.map_idx]
+            self.state       = load_map(path)
+        self.animating   = False
+        self.solving     = False
+        self.anim_index  = 0
+        self.anim_states = []
+        self.finished    = False
+        self.paused      = False
+        self.status_msg  = ""
+        self.error_msg   = ""
+        self.solve_result= None
+        self.stats       = None
+
     def handle_event(self, event, mouse_pos):
         if event.type != pygame.MOUSEBUTTONDOWN:
             return
         W, H = self.screen.get_size()
-        sw = SIDEBAR_W
-
-        # Mũi tên map
-        arr_y = 200
-        if pygame.Rect(sw+30, arr_y, 36, 36).collidepoint(mouse_pos):
-            self.map_idx = (self.map_idx - 1) % max(1, len(self.map_list))
-        if pygame.Rect(sw+SIDEBAR_W-66, arr_y, 36, 36).collidepoint(mouse_pos):  # placeholder, tính lại bên draw
-            pass
-
-        # Mũi tên algo
-        # Nút Play / Analysis — tính rect giống draw
         btns = self._get_rects(W, H)
+        
+        # Map selection
         if btns['map_prev'].collidepoint(mouse_pos):
             self.map_idx = (self.map_idx - 1) % max(1, len(self.map_list))
+            self._reset()
+            self._load_current_map()
         if btns['map_next'].collidepoint(mouse_pos):
             self.map_idx = (self.map_idx + 1) % max(1, len(self.map_list))
+            self._reset()
+            self._load_current_map()
+        
+        # Algorithm selection
         if btns['algo_prev'].collidepoint(mouse_pos):
             self.algo_idx = (self.algo_idx - 1) % len(self.ALGOS)
         if btns['algo_next'].collidepoint(mouse_pos):
             self.algo_idx = (self.algo_idx + 1) % len(self.ALGOS)
-        if btns['play'].collidepoint(mouse_pos) and self.map_list:
-            _, path = self.map_list[self.map_idx]
-            self.result = ('play', path, self.selected_algo)
+        
+        # Speed selection
+        if btns['speed_prev'].collidepoint(mouse_pos):
+            self.speed_idx = (self.speed_idx - 1) % len(self.SPEEDS)
+        if btns['speed_next'].collidepoint(mouse_pos):
+            self.speed_idx = (self.speed_idx + 1) % len(self.SPEEDS)
+        
+        # Solve button
+        if btns['solve'].collidepoint(mouse_pos) and not self.solving and not self.finished:
+            self.solving    = True
+            self.status_msg = "Solving..."
+            self.error_msg  = ""
+            threading.Thread(target=self._solve_worker, daemon=True).start()
+        
+        # Pause button
+        if btns['pause'].collidepoint(mouse_pos) and self.animating:
+            self.paused = not self.paused
+        
+        # Reset button
+        if btns['reset'].collidepoint(mouse_pos):
+            self._reset()
+        
+        # Analysis button
         if btns['analysis'].collidepoint(mouse_pos):
             self.result = ('analysis',)
 
     def _get_rects(self, W, H):
         sw = SIDEBAR_W
-        cx = sw + (W - sw) // 2
-
-        map_row_y  = 230
-        algo_row_y = 340
+        x_start = 20
+        y_start = 150
+        row_height = 70
+        
         return {
-            'map_prev':  pygame.Rect(sw + 20,        map_row_y,  38, 38),
-            'map_next':  pygame.Rect(W - 58,          map_row_y,  38, 38),
-            'algo_prev': pygame.Rect(sw + 20,        algo_row_y, 38, 38),
-            'algo_next': pygame.Rect(W - 58,          algo_row_y, 38, 38),
-            'play':      pygame.Rect(cx - 110,        H - 110,   220, 52),
-            'analysis':  pygame.Rect(sw + 20,         H - 110,   160, 52),
+            'map_prev':   pygame.Rect(x_start, y_start, 36, 36),
+            'map_next':   pygame.Rect(sw - 56, y_start, 36, 36),
+            'algo_prev':  pygame.Rect(x_start, y_start + row_height, 36, 36),
+            'algo_next':  pygame.Rect(sw - 56, y_start + row_height, 36, 36),
+            'speed_prev': pygame.Rect(x_start, y_start + row_height*2, 36, 36),
+            'speed_next': pygame.Rect(sw - 56, y_start + row_height*2, 36, 36),
+            'solve':      pygame.Rect(x_start, y_start + row_height*3 + 20, sw - 40, 44),
+            'reset':      pygame.Rect(x_start, y_start + row_height*3 + 74, sw - 40, 44),
+            'pause':      pygame.Rect(x_start, y_start + row_height*3 + 128, sw - 40, 44),
+            'analysis':   pygame.Rect(x_start, H - 60, sw - 40, 44),
         }
+
+    def update(self, dt):
+        if self.solve_result is not None and not self.animating and not self.finished:
+            r = self.solve_result; self.solve_result = None
+            if r.found:
+                self.anim_states = self._build_anim_states(r.solution)
+                self.animating   = True
+                self.anim_index  = 0
+                self.anim_timer  = 0.0
+                self.stats       = r
+                self.status_msg  = (f"Found!  {r.moves} moves  |  "
+                                    f"{r.nodes_explored:,} nodes  |  {r.time_elapsed:.3f}s")
+            else:
+                self.error_msg  = "No solution found within time limit."
+                self.status_msg = ""
+
+        if self.animating and self.anim_states and not self.paused:
+            self.anim_timer += dt
+            delay = self.SPEEDS[self.speed_idx][1]
+            if self.anim_timer >= delay:
+                self.anim_timer = 0.0
+                self.anim_index += 1
+                if self.anim_index >= len(self.anim_states):
+                    self.anim_index = len(self.anim_states) - 1
+                    self.animating  = False
+                    self.finished   = True
+                else:
+                    self.state = self.anim_states[self.anim_index]
 
     def draw(self, mouse_pos):
         W, H = self.screen.get_size()
@@ -127,82 +239,86 @@ class MenuScreen:
         draw_sidebar(self.screen, pygame.Rect(0, 0, sw, H))
 
         # Logo / title
-        draw_text(self.screen, "SOKOBAN", sw//2, 60, self.fonts['xl'],
+        draw_text(self.screen, "SOKOBAN", sw//2, 50, self.fonts['xl'],
                   ACCENT, center=True)
-        draw_text(self.screen, "AI  SOLVER", sw//2, 108, self.fonts['md'],
+        draw_text(self.screen, "AI  SOLVER", sw//2, 95, self.fonts['md'],
                   ACCENT3, center=True)
 
         # Divider
-        pygame.draw.line(self.screen, DIVIDER, (20, 135), (sw-20, 135), 1)
+        pygame.draw.line(self.screen, DIVIDER, (20, 120), (sw-20, 120), 1)
 
-        # Map info list (sidebar)
-        draw_text(self.screen, "MAPS", 20, 150, self.fonts['xs'], TEXT_DIM)
-        vis = min(8, len(self.map_list))
-        start_i = max(0, self.map_idx - vis//2)
-        for i in range(vis):
-            idx  = start_i + i
-            if idx >= len(self.map_list): break
-            name = self.map_list[idx][0]
-            y    = 170 + i * 28
-            active = (idx == self.map_idx)
-            if active:
-                pygame.draw.rect(self.screen, BTN_ACTIVE,
-                                 pygame.Rect(10, y-3, sw-20, 24), border_radius=5)
-            draw_text(self.screen, name[:22], 20, y,
-                      self.fonts['xs'], WHITE if active else TEXT_DIM)
-
-        # Divider
-        pygame.draw.line(self.screen, DIVIDER, (20, H-130), (sw-20, H-130), 1)
-
-        # Analysis button in sidebar
-        draw_button(self.screen, "📊  Analysis", btns['analysis'],
-                    self.fonts['sm'],
-                    hover=btns['analysis'].collidepoint(mouse_pos))
-
-        # ── Main area ────────────────────────────────────────────────────────
-        cx   = sw + (W - sw) // 2
-
-        # Title
-        draw_text(self.screen, "Select Map", cx, 70, self.fonts['lg'],
-                  TEXT_BRIGHT, center=True)
-
-        # Map selector row
-        map_name = self.map_list[self.map_idx][0] if self.map_list else "—"
+        # Map selection
+        draw_text(self.screen, "Map", sw//2, 138, self.fonts['xs'], TEXT_DIM, center=True)
         draw_arrow_btn(self.screen, btns['map_prev'], 'left', self.fonts['sm'],
                        hover=btns['map_prev'].collidepoint(mouse_pos))
         draw_arrow_btn(self.screen, btns['map_next'], 'right', self.fonts['sm'],
                        hover=btns['map_next'].collidepoint(mouse_pos))
+        map_name = self.map_list[self.map_idx][0] if self.map_list else "—"
+        draw_text(self.screen, map_name[:15], sw//2, 168, self.fonts['sm'], WHITE, center=True)
+        draw_text(self.screen, f"{self.map_idx+1}/{len(self.map_list)}", sw//2, 188, 
+                  self.fonts['xs'], TEXT_DIM, center=True)
 
-        card = pygame.Rect(sw + 70, 218, W - sw - 140, 62)
-        draw_card(self.screen, card)
-        draw_text(self.screen, map_name, card.centerx, card.centery,
-                  self.fonts['md'], WHITE, center=True)
-        draw_text(self.screen, f"{self.map_idx+1} / {len(self.map_list)}",
-                  card.right - 12, card.bottom - 16,
-                  self.fonts['xs'], TEXT_DIM, right=True)
-
-        # Divider
-        pygame.draw.line(self.screen, DIVIDER,
-                         (sw+30, 298), (W-30, 298), 1)
-
-        # Algo selector row
-        draw_text(self.screen, "Algorithm", cx, 322, self.fonts['sm'],
-                  TEXT_DIM, center=True)
+        # Algorithm selection
+        draw_text(self.screen, "Algorithm", sw//2, 208, self.fonts['xs'], TEXT_DIM, center=True)
         draw_arrow_btn(self.screen, btns['algo_prev'], 'left', self.fonts['sm'],
                        hover=btns['algo_prev'].collidepoint(mouse_pos))
         draw_arrow_btn(self.screen, btns['algo_next'], 'right', self.fonts['sm'],
                        hover=btns['algo_next'].collidepoint(mouse_pos))
+        draw_text(self.screen, self.ALGOS[self.algo_idx][1], sw//2, 238, 
+                  self.fonts['sm'], ACCENT, center=True)
 
-        acard = pygame.Rect(sw + 70, 328, W - sw - 140, 62)
-        draw_card(self.screen, acard, color=(30, 30, 52))
-        draw_text(self.screen, self.ALGOS[self.algo_idx][1],
-                  acard.centerx, acard.centery,
-                  self.fonts['md'], ACCENT, center=True)
+        # Speed selection
+        draw_text(self.screen, "Speed", sw//2, 278, self.fonts['xs'], TEXT_DIM, center=True)
+        draw_arrow_btn(self.screen, btns['speed_prev'], 'left', self.fonts['sm'],
+                       hover=btns['speed_prev'].collidepoint(mouse_pos))
+        draw_arrow_btn(self.screen, btns['speed_next'], 'right', self.fonts['sm'],
+                       hover=btns['speed_next'].collidepoint(mouse_pos))
+        draw_text(self.screen, self.SPEEDS[self.speed_idx][0], sw//2, 308, 
+                  self.fonts['sm'], WHITE, center=True)
 
-        # Play button
-        draw_button(self.screen, "▶   Play", btns['play'], self.fonts['md'],
-                    hover=btns['play'].collidepoint(mouse_pos),
-                    color=BTN_ACTIVE)
+        # Solve button
+        lbl = "⏳ Solving…" if self.solving else "▶ Solve"
+        draw_button(self.screen, lbl, btns['solve'], self.fonts['sm'],
+                    hover=btns['solve'].collidepoint(mouse_pos),
+                    active=self.solving, color=BTN_ACTIVE)
+
+        # Pause button
+        if self.animating:
+            pause_lbl = "▶ Resume" if self.paused else "⏸ Pause"
+            draw_button(self.screen, pause_lbl, btns['pause'], self.fonts['sm'],
+                        hover=btns['pause'].collidepoint(mouse_pos))
+
+        # Reset button
+        draw_button(self.screen, "⟳ Reset", btns['reset'], self.fonts['sm'],
+                    hover=btns['reset'].collidepoint(mouse_pos))
+
+        # Analysis button
+        draw_button(self.screen, "📊 Analysis", btns['analysis'], self.fonts['sm'],
+                    hover=btns['analysis'].collidepoint(mouse_pos))
+
+        # ── Main area (Map display) ─────────────────────────────────────────────
+        if self.state:
+            tile = min(TILE, (W-sw-60)//(max(self.state.width,1)),
+                             (H-100)//(max(self.state.height,1)))
+            ox, oy = board_center_offset(W-sw, H, self.state, tile)
+            ox += sw
+            oy += 50
+            draw_board(self.screen, self.state, None, ox, oy, tile)
+
+        # Progress bar
+        if self.anim_states:
+            total = max(len(self.anim_states)-1, 1)
+            draw_progress_bar(self.screen,
+                              pygame.Rect(sw+40, H-26, W-sw-80, 8),
+                              self.anim_index / total)
+
+        # Status
+        if self.error_msg:
+            draw_text(self.screen, self.error_msg,
+                      sw + (W-sw)//2, H-46, self.fonts['sm'], DANGER, center=True)
+        elif self.status_msg:
+            draw_text(self.screen, self.status_msg,
+                      sw + (W-sw)//2, H-46, self.fonts['sm'], SUCCESS, center=True)
 
         pygame.display.flip()
 
