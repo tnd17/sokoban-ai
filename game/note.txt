@@ -1,6 +1,0 @@
-Thư mục này chứa các file code mô tả luật của trò chơi Sokoban.
-Bao gồm:
-- Quy tắc di chuyển của nhân vật
-- Quy tắc đẩy thùng
-- Kiểm tra trạng thái hợp lệ
-- Kiểm tra trạng thái chiến thắng

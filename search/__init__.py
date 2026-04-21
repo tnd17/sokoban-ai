@@ -1,0 +1,1 @@
+from search.algorithms import solve, SearchResult

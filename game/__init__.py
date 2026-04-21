@@ -1,0 +1,1 @@
+from game.rules import move_player, is_win
