@@ -1,8 +1,8 @@
 """
 Chạy thống kê cho tất cả map + cả 2 thuật toán, lưu cache vào stats_cache.json.
+Độ khó (difficulty) = log2(astar_nodes + 1) — thước đo thực nghiệm trực tiếp.
 """
-import os, json, time, hashlib
-from collections import deque
+import os, json, time, hashlib, math
 
 CACHE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'stats_cache.json')
 
@@ -11,71 +11,18 @@ def _map_fingerprint(map_list):
     return hashlib.md5('|'.join(p for _, p in map_list).encode()).hexdigest()
 
 
-def _bfs_dist(grid, start, end):
-    """BFS tìm khoảng cách ngắn nhất từ start đến end trên grid."""
-    if start == end:
-        return 0
-    rows, cols = len(grid), max(len(r) for r in grid)
-    visited = {start}
-    q = deque([(start, 0)])
-    while q:
-        (r, c), d = q.popleft()
-        for dr, dc in [(1,0),(-1,0),(0,1),(0,-1)]:
-            nr, nc = r+dr, c+dc
-            if (nr, nc) == end:
-                return d + 1
-            if (0 <= nr < rows and 0 <= nc < len(grid[nr])
-                    and grid[nr][nc] != '#' and (nr, nc) not in visited):
-                visited.add((nr, nc))
-                q.append(((nr, nc), d+1))
-    return 999
-
-
-def compute_complexity(grid, boxes, targets):
+def compute_difficulty(astar_nodes: int) -> float:
     """
-    Tính độ phức tạp của map:
-        complexity = (boxes^1.5 × 5) + (walkable × 0.2) + (avg_bfs_dist × 2) + (deadly_corners × 3)
+    Độ khó thực nghiệm dựa trên số node A* đã duyệt.
+    Dùng log2(nodes + 1) để cân bằng khi nodes chênh lệch lớn.
+    Ví dụ:
+        nodes=0     → difficulty=0.00
+        nodes=10    → difficulty=3.46
+        nodes=100   → difficulty=6.66
+        nodes=1000  → difficulty=9.97
+        nodes=10000 → difficulty=13.29
     """
-    rows = len(grid)
-    cols = max(len(r) for r in grid)
-    targets_set = set(targets)
-    boxes_list  = list(boxes)
-
-    # Số ô đi được
-    walkable = sum(
-        1 for r in range(rows) for c in range(cols)
-        if c < len(grid[r]) and grid[r][c] != '#'
-    )
-
-    # Deadly corners: ô đi được, không phải target, bị tường chặn 2 hướng vuông góc
-    deadly = 0
-    for r in range(rows):
-        for c in range(cols):
-            if c >= len(grid[r]) or grid[r][c] == '#':
-                continue
-            if (r, c) in targets_set:
-                continue
-            def is_wall(nr, nc):
-                return (nr < 0 or nr >= rows or nc < 0 or nc >= len(grid[nr])
-                        or grid[nr][nc] == '#')
-            for dr, dc in [(-1,-1),(-1,1),(1,-1),(1,1)]:
-                if is_wall(r+dr, c) and is_wall(r, c+dc):
-                    deadly += 1
-                    break
-
-    # Avg BFS distance từ mỗi box đến target gần nhất
-    if boxes_list and targets_set:
-        total_dist = 0
-        for box in boxes_list:
-            nearest = min(_bfs_dist(grid, box, t) for t in targets_set)
-            total_dist += nearest
-        avg_dist = total_dist / len(boxes_list)
-    else:
-        avg_dist = 0
-
-    nb = len(boxes_list)
-    complexity = (nb ** 1.5) * 5 + walkable * 0.2 + avg_dist * 2 + deadly * 3
-    return round(complexity, 2)
+    return round(math.log2(astar_nodes + 1), 2)
 
 
 def run_stats(map_list, time_limit=30.0):
@@ -94,25 +41,42 @@ def run_stats(map_list, time_limit=30.0):
             results[name] = {'error': str(e)}
             continue
 
-        # Tính complexity
-        results[name]['complexity'] = compute_complexity(
-            raw_grid,
-            list(state.boxes),
-            list(state.targets),
-        )
-
+        # Chạy từng thuật toán
+        algo_results = {}
         for algo in ['greedy', 'astar']:
             h = get_heuristic(algo, raw_grid, state.targets, use_optimized=True)
             r = solve(state, algo, h, time_limit)
             nodes = r.nodes_explored
             moves = r.moves
-            results[name][algo] = {
+            algo_results[algo] = {
                 'found':      r.found,
                 'moves':      moves,
                 'nodes':      nodes,
                 'time':       round(r.time_elapsed, 4),
                 'efficiency': round(nodes / moves, 2) if moves > 0 else None,
             }
+
+        # Độ khó = log2(astar_nodes + 1)
+        # Nếu A* không tìm được lời giải, fallback sang greedy_nodes
+        astar_nodes  = algo_results['astar']['nodes']
+        greedy_nodes = algo_results['greedy']['nodes']
+        base_nodes   = astar_nodes if algo_results['astar']['found'] else greedy_nodes
+        results[name]['difficulty'] = compute_difficulty(base_nodes)
+
+        # Giữ thêm complexity_label để hiển thị dễ đọc
+        diff = results[name]['difficulty']
+        if diff < 4:
+            results[name]['difficulty_label'] = 'Easy'
+        elif diff < 8:
+            results[name]['difficulty_label'] = 'Medium'
+        elif diff < 11:
+            results[name]['difficulty_label'] = 'Hard'
+        else:
+            results[name]['difficulty_label'] = 'Very Hard'
+
+        results[name]['greedy'] = algo_results['greedy']
+        results[name]['astar']  = algo_results['astar']
+
     return results
 
 

@@ -300,8 +300,8 @@ class MenuScreen:
         if self.state:
             tile = min(TILE, (W-sw-60)//(max(self.state.width,1)),
                              (H-100)//(max(self.state.height,1)))
-            ox, oy = board_center_offset(W-sw, H, self.state, tile)
-            ox += sw
+            ox, oy = board_center_offset(W-sw-60, H-100, self.state, tile)
+            ox += sw + 30
             oy += 50
             draw_board(self.screen, self.state, None, ox, oy, tile)
 
@@ -570,7 +570,7 @@ class AnalysisScreen:
 
         self.sorted_maps = sorted(
             map_list,
-            key=lambda nm: cache_data.get(nm[0], {}).get('complexity', 0)
+            key=lambda nm: cache_data.get(nm[0], {}).get('difficulty', 0)
         )
 
     # ── helpers ──────────────────────────────────────────────────────────────
@@ -601,12 +601,12 @@ class AnalysisScreen:
                 self.tab = i
 
         if self.tab == 5:
-            lx = ANALYSIS_SW + 20
+            content_x = ANALYSIS_SW + 10
+            content_w = W - ANALYSIS_SW - 20
             # arrow buttons for map compare
-            W2 = W
-            if pygame.Rect(lx, 72, 32, 32).collidepoint(mouse_pos):
+            if pygame.Rect(content_x + 8, 73, 30, 28).collidepoint(mouse_pos):
                 self.cmp_idx = (self.cmp_idx-1) % max(1,len(self.map_list))
-            if pygame.Rect(lx+200, 72, 32, 32).collidepoint(mouse_pos):
+            if pygame.Rect(content_x + content_w - 38, 73, 30, 28).collidepoint(mouse_pos):
                 self.cmp_idx = (self.cmp_idx+1) % max(1,len(self.map_list))
 
     # ── draw ─────────────────────────────────────────────────────────────────
@@ -715,132 +715,310 @@ class AnalysisScreen:
                 pygame.draw.rect(self.screen, CHART_A,
                                  pygame.Rect(col_bar+gw, y+2, aw, 20), border_radius=3)
                 draw_text(self.screen, f"{gv/(total)*100:.0f}%",
-                          col_bar+gw//2, y+3, self.fonts['xs'], BG, center=True)
+                          col_bar+gw//2, y+12, self.fonts['xs'], BG, center=True)
                 draw_text(self.screen, f"{av/(total)*100:.0f}%",
-                          col_bar+gw+aw//2, y+3, self.fonts['xs'], BG, center=True)
+                          col_bar+gw+aw//2, y+12, self.fonts['xs'], BG, center=True)
             y += 40
 
-    # ── tabs 1-4: normalised line chart ──────────────────────────────────────
+    # ── tabs 1-4: scatter + regression line ──────────────────────────────────
     def _draw_line_chart(self, metric, title, color_g, color_a):
         W, H = self.screen.get_size()
-        cx   = ANALYSIS_SW + (W - ANALYSIS_SW)//2
+        cx   = ANALYSIS_SW + (W - ANALYSIS_SW) // 2
 
         draw_text(self.screen, title, cx, 68, self.fonts['md'], TEXT_BRIGHT, center=True)
 
         ordered = self.sorted_maps
-        names   = [n for n,_ in ordered]
+        names   = [n for n, _ in ordered]
         if len(names) < 2:
-            draw_text(self.screen, "Need ≥ 2 maps", cx, H//2,
+            draw_text(self.screen, "Need ≥ 2 maps", cx, H // 2,
                       self.fonts['md'], TEXT_DIM, center=True)
             return
 
-        chart_x = ANALYSIS_SW + 60
+        chart_x = ANALYSIS_SW + 70
         chart_y = 100
-        chart_w = W - ANALYSIS_SW - 80
-        chart_h = H - 220
+        chart_w = W - ANALYSIS_SW - 90
+        chart_h = H - 230
 
-        # Raw values per algo
+        # ── Thu thập dữ liệu thô ─────────────────────────────────────────────
         def get_vals(algo):
-            return [self.data.get(n,{}).get(algo,{}).get(metric)
-                    if self.data.get(n,{}).get(algo,{}).get('found') else None
-                    for n in names]
+            if metric == 'efficiency':
+                return [self._eff(n, algo) for n in names]
+            return [
+                self.data.get(n, {}).get(algo, {}).get(metric)
+                if self.data.get(n, {}).get(algo, {}).get('found') else None
+                for n in names
+            ]
 
-        def get_eff_vals(algo):
-            return [self._eff(n, algo) for n in names]
+        raw_g = get_vals('greedy')
+        raw_a = get_vals('astar')
 
-        raw_g = get_eff_vals('greedy') if metric=='efficiency' else get_vals('greedy')
-        raw_a = get_eff_vals('astar')  if metric=='efficiency' else get_vals('astar')
+        # X = difficulty (thực nghiệm), Y = giá trị metric
+        diff_vals = [self.data.get(n, {}).get('difficulty', 0) for n in names]
 
-        # Normalise each algo independently to [0,1]
+        # ── Chuẩn hóa Y độc lập từng algo ───────────────────────────────────
         def normalise(vals):
             clean = [v for v in vals if v is not None]
-            if not clean: return [None]*len(vals)
+            if not clean:
+                return [None] * len(vals)
             lo, hi = min(clean), max(clean)
-            if hi == lo: return [0.5 if v is not None else None for v in vals]
-            return [(v-lo)/(hi-lo) if v is not None else None for v in vals]
+            if hi == lo:
+                return [0.5 if v is not None else None for v in vals]
+            return [(v - lo) / (hi - lo) if v is not None else None for v in vals]
 
         norm_g = normalise(raw_g)
         norm_a = normalise(raw_a)
 
-        # Grid
-        pygame.draw.rect(self.screen, (22,22,38),
+        # X chuẩn hóa để vẽ lên chart (diff → pixel)
+        diff_clean = [v for v in diff_vals if v is not None]
+        diff_lo  = min(diff_clean) if diff_clean else 0
+        diff_hi  = max(diff_clean) if diff_clean else 1
+        diff_rng = diff_hi - diff_lo if diff_hi != diff_lo else 1
+
+        def diff_to_px(d):
+            return int(chart_x + (d - diff_lo) / diff_rng * chart_w)
+
+        def val_to_py(v):
+            return int(chart_y + chart_h - v * chart_h)
+
+        # ── Vẽ nền + grid ───────────────────────────────────────────────────
+        pygame.draw.rect(self.screen, (20, 20, 36),
                          pygame.Rect(chart_x, chart_y, chart_w, chart_h))
-        for k in range(5+1):
-            yp = chart_y + int(chart_h * k/5)
+        for k in range(6):
+            yp  = chart_y + int(chart_h * k / 5)
             pygame.draw.line(self.screen, CHART_GRID,
-                             (chart_x, yp), (chart_x+chart_w, yp), 1)
-            lbl = f"{(1-k/5)*100:.0f}%"
-            draw_text(self.screen, lbl, chart_x-6, yp-7,
+                             (chart_x, yp), (chart_x + chart_w, yp), 1)
+            lbl = f"{(1 - k/5)*100:.0f}%"
+            draw_text(self.screen, lbl, chart_x - 8, yp - 7,
                       self.fonts['xs'], TEXT_DIM, right=True)
 
         # Axes
         pygame.draw.line(self.screen, CHART_AXIS,
-                         (chart_x, chart_y), (chart_x, chart_y+chart_h), 2)
+                         (chart_x, chart_y), (chart_x, chart_y + chart_h), 2)
         pygame.draw.line(self.screen, CHART_AXIS,
-                         (chart_x, chart_y+chart_h),
-                         (chart_x+chart_w, chart_y+chart_h), 2)
+                         (chart_x, chart_y + chart_h),
+                         (chart_x + chart_w, chart_y + chart_h), 2)
 
-        step = chart_w / max(len(names)-1, 1)
+        # ── Helper: linear regression trên norm values ────────────────────────
+        def poly2_regression(xs, ys):
+            """
+            Hồi quy bậc 2: y = a*x² + b*x + c
+            Dùng phương pháp bình phương tối thiểu (normal equations).
+            Trả về (a, b, c) hoặc None nếu không đủ điểm.
+            """
+            pts = [(x, y) for x, y in zip(xs, ys)
+                   if x is not None and y is not None]
+            if len(pts) < 3:
+                # Fallback bậc 1 nếu ít hơn 3 điểm
+                if len(pts) < 2:
+                    return None
+                n   = len(pts)
+                sx  = sum(p[0] for p in pts)
+                sy  = sum(p[1] for p in pts)
+                sxx = sum(p[0]**2 for p in pts)
+                sxy = sum(p[0]*p[1] for p in pts)
+                denom = n * sxx - sx * sx
+                if abs(denom) < 1e-12:
+                    return None
+                b1 = (n * sxy - sx * sy) / denom
+                b0 = (sy - b1 * sx) / n
+                return (0.0, b1, b0)   # a=0 → vẫn dùng chung công thức
 
-        def draw_line(norm_vals, color):
-            pts = []
-            for i, v in enumerate(norm_vals):
-                if v is None: continue
-                px = int(chart_x + i * step)
-                py = int(chart_y + chart_h - v * chart_h)
-                pts.append((px, py))
-            if len(pts) >= 2:
-                pygame.draw.lines(self.screen, color, False, pts, 2)
-            for px, py in pts:
-                pygame.draw.circle(self.screen, color, (px, py), 5)
+            # Normal equations cho bậc 2
+            # [S4 S3 S2] [a]   [Sx2y]
+            # [S3 S2 S1] [b] = [Sxy ]
+            # [S2 S1 S0] [c]   [Sy  ]
+            S0  = len(pts)
+            S1  = sum(p[0]    for p in pts)
+            S2  = sum(p[0]**2 for p in pts)
+            S3  = sum(p[0]**3 for p in pts)
+            S4  = sum(p[0]**4 for p in pts)
+            Sy  = sum(p[1]          for p in pts)
+            Sxy = sum(p[0]*p[1]     for p in pts)
+            Sx2y= sum(p[0]**2*p[1]  for p in pts)
+
+            # Giải hệ 3×3 bằng Cramer / Gaussian elimination đơn giản
+            A = [
+                [S4,  S3,  S2,  Sx2y],
+                [S3,  S2,  S1,  Sxy ],
+                [S2,  S1,  S0,  Sy  ],
+            ]
+            # Forward elimination
+            for col in range(3):
+                # Pivot
+                max_row = max(range(col, 3), key=lambda r: abs(A[r][col]))
+                A[col], A[max_row] = A[max_row], A[col]
+                if abs(A[col][col]) < 1e-14:
+                    continue
+                for row in range(col + 1, 3):
+                    factor = A[row][col] / A[col][col]
+                    for k in range(col, 4):
+                        A[row][k] -= factor * A[col][k]
+            # Back substitution
+            coeffs = [0.0, 0.0, 0.0]
+            for row in range(2, -1, -1):
+                if abs(A[row][row]) < 1e-14:
+                    coeffs[row] = 0.0
+                else:
+                    coeffs[row] = (A[row][3] - sum(A[row][j] * coeffs[j]
+                                                    for j in range(row+1, 3))) / A[row][row]
+            return tuple(coeffs)   # (a, b, c)
+
+        # ── Vẽ scatter + regression cho từng algo ────────────────────────────
+        def draw_scatter_regression(norm_vals, raw_vals, color):
+            # Scatter points
+            scatter_pts = []
+            for i, (nv, rv) in enumerate(zip(norm_vals, raw_vals)):
+                if nv is None:
+                    continue
+                px = diff_to_px(diff_vals[i])
+                py = val_to_py(nv)
+                scatter_pts.append((px, py, i))
+
+                # Vòng ngoài mờ (glow)
+                glow = pygame.Surface((22, 22), pygame.SRCALPHA)
+                pygame.draw.circle(glow, (*color, 50), (11, 11), 11)
+                self.screen.blit(glow, (px - 11, py - 11))
+                # Chấm chính
+                pygame.draw.circle(self.screen, color, (px, py), 6)
                 pygame.draw.circle(self.screen, BG,    (px, py), 3)
 
-        draw_line(norm_g, color_g)
-        draw_line(norm_a, color_a)
+            # Regression line
+            xs_norm = [(diff_vals[i] - diff_lo) / diff_rng
+                       for i, nv in enumerate(norm_vals) if nv is not None]
+            ys_norm = [nv for nv in norm_vals if nv is not None]
+            reg = poly2_regression(xs_norm, ys_norm)
+            if reg:
+                a, b, c = reg
 
-        # X labels + complexity
+                # Tìm điểm cực trị của parabol: x* = -b / (2a)
+                # Nếu a > 0 (parabol mở lên): có cực tiểu tại x*
+                #   → bên trái x* clamp nằm ngang tại f(x*)
+                # Nếu a <= 0 hoặc x* ngoài [0,1]: vẽ bình thường
+                if a > 1e-9:
+                    x_min = -b / (2 * a)   # đỉnh parabol (cực tiểu)
+                else:
+                    x_min = None           # không có cực tiểu trong vùng cần xử lý
+
+                SAMPLES   = 120
+                curve_pts = []
+                for s in range(SAMPLES + 1):
+                    t  = s / SAMPLES
+                    if x_min is not None and t < x_min:
+                        # Bên trái cực tiểu → nằm ngang tại giá trị cực tiểu
+                        yv = a * x_min**2 + b * x_min + c
+                    else:
+                        yv = a * t*t + b * t + c
+                    yv   = max(0.0, min(1.0, yv))
+                    px_c = int(chart_x + t * chart_w)
+                    py_c = val_to_py(yv)
+                    curve_pts.append((px_c, py_c))
+
+                # Vẽ nét đứt dọc theo đường cong
+                dash_len = 10
+                gap_len  = 5
+                seg_buf  = 0
+                drawing  = True
+                for k in range(len(curve_pts) - 1):
+                    x0, y0 = curve_pts[k]
+                    x1, y1 = curve_pts[k + 1]
+                    seg_len = math.hypot(x1 - x0, y1 - y0)
+                    remain  = seg_len
+                    fx, fy  = float(x0), float(y0)
+                    dx = (x1 - x0) / seg_len if seg_len > 0 else 0
+                    dy = (y1 - y0) / seg_len if seg_len > 0 else 0
+                    while remain > 0:
+                        step = (dash_len - seg_buf) if drawing else (gap_len - seg_buf)
+                        step = min(step, remain)
+                        ex   = fx + dx * step
+                        ey   = fy + dy * step
+                        if drawing:
+                            pygame.draw.line(self.screen, color,
+                                             (int(fx), int(fy)),
+                                             (int(ex), int(ey)), 2)
+                        fx, fy   = ex, ey
+                        seg_buf += step
+                        remain  -= step
+                        target   = dash_len if drawing else gap_len
+                        if seg_buf >= target - 0.5:
+                            seg_buf = 0
+                            drawing = not drawing
+
+                # R² so với đường bậc 2
+                ys_pred = [a * x*x + b * x + c for x in xs_norm]
+                y_mean  = sum(ys_norm) / len(ys_norm)
+                ss_res  = sum((y - yp)**2 for y, yp in zip(ys_norm, ys_pred))
+                ss_tot  = sum((y - y_mean)**2 for y in ys_norm)
+                r2      = 1 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+                return r2
+            return None
+
+        r2_g = draw_scatter_regression(norm_g, raw_g, color_g)
+        r2_a = draw_scatter_regression(norm_a, raw_a, color_a)
+
+        # ── X-axis labels (map names dưới trục) ──────────────────────────────
         for i, name in enumerate(names):
-            px  = int(chart_x + i * step)
-            cpx = self.data.get(name,{}).get('complexity','')
+            px   = diff_to_px(diff_vals[i])
+            dlbl = self.data.get(name, {}).get('difficulty_label', '')
+            diff = self.data.get(name, {}).get('difficulty', '?')
+            # Tick
+            pygame.draw.line(self.screen, CHART_AXIS,
+                             (px, chart_y + chart_h),
+                             (px, chart_y + chart_h + 5), 1)
             draw_text(self.screen, name[:7],
-                      px, chart_y+chart_h+8, self.fonts['xs'], TEXT_DIM, center=True)
-            draw_text(self.screen, f"c={cpx}",
-                      px, chart_y+chart_h+22, self.fonts['xs'], (70,70,100), center=True)
+                      px, chart_y + chart_h + 8,
+                      self.fonts['xs'], TEXT_DIM, center=True)
+            draw_text(self.screen, f"d={diff}",
+                      px, chart_y + chart_h + 22,
+                      self.fonts['xs'], (70, 70, 100), center=True)
 
-        # Tooltip: raw value on hover (nearest x)
+        # ── Tooltip hover ─────────────────────────────────────────────────────
         mx, my = pygame.mouse.get_pos()
-        if chart_x <= mx <= chart_x+chart_w and chart_y <= my <= chart_y+chart_h:
-            nearest = min(range(len(names)),
-                          key=lambda i: abs(chart_x + i*step - mx))
+        if chart_x <= mx <= chart_x + chart_w and chart_y <= my <= chart_y + chart_h:
+            nearest = min(
+                range(len(names)),
+                key=lambda i: abs(diff_to_px(diff_vals[i]) - mx)
+            )
             n    = names[nearest]
             graw = raw_g[nearest]
             araw = raw_a[nearest]
-            fmt  = (lambda v: f"{v:.4f}") if metric=='time' else (
-                   (lambda v: f"{v:.2f}")  if metric=='efficiency' else
-                   (lambda v: str(int(v)) if v is not None else "N/A"))
+            fmt  = ((lambda v: f"{v:.4f}") if metric == 'time' else
+                    (lambda v: f"{v:.2f}")  if metric == 'efficiency' else
+                    (lambda v: str(int(v))  if v is not None else "N/A"))
             tip  = (f"{n}  |  Greedy: {fmt(graw) if graw is not None else 'N/A'}"
                     f"  ·  A*: {fmt(araw) if araw is not None else 'N/A'}")
             tw   = self.fonts['xs'].size(tip)[0] + 16
-            tx   = min(mx+10, W-tw-10)
-            ty   = max(chart_y, my-28)
-            draw_card(self.screen, pygame.Rect(tx-8, ty-4, tw, 26),
-                      color=(30,30,50), border=ACCENT)
-            draw_text(self.screen, tip, tx, ty, self.fonts['xs'], TEXT_BRIGHT)
+            tx   = min(mx + 10, W - tw - 10)
+            ty2  = max(chart_y + 4, my - 28)
+            draw_card(self.screen,
+                      pygame.Rect(tx - 8, ty2 - 4, tw, 26),
+                      color=(30, 30, 50), border=ACCENT)
+            draw_text(self.screen, tip, tx, ty2, self.fonts['xs'], TEXT_BRIGHT)
 
-        # Legend
+        # ── Legend + R² ───────────────────────────────────────────────────────
         lx = chart_x
-        ly = chart_y + chart_h + 42
-        pygame.draw.rect(self.screen, color_g, pygame.Rect(lx,    ly, 24, 4))
-        pygame.draw.circle(self.screen, color_g, (lx+12, ly+2), 5)
-        draw_text(self.screen, "Greedy", lx+30, ly-5, self.fonts['xs'], color_g)
-        pygame.draw.rect(self.screen, color_a, pygame.Rect(lx+110,ly, 24, 4))
-        pygame.draw.circle(self.screen, color_a, (lx+122, ly+2), 5)
-        draw_text(self.screen, "A*",     lx+140, ly-5, self.fonts['xs'], color_a)
-        draw_text(self.screen, "← complexity increases →",
-                  cx, ly-4, self.fonts['xs'], TEXT_DIM, center=True)
-        draw_text(self.screen,
-                  "Each algo normalised independently: 0% = its own min, 100% = its own max",
-                  cx, ly+14, self.fonts['xs'], (70,70,100), center=True)
+        ly = chart_y + chart_h + 44
+
+        # Greedy
+        pygame.draw.line(self.screen, color_g,
+                         (lx, ly + 2), (lx + 22, ly + 2), 2)
+        pygame.draw.circle(self.screen, color_g, (lx + 11, ly + 2), 5)
+        pygame.draw.circle(self.screen, BG,       (lx + 11, ly + 2), 3)
+        r2g_str = f"  R²={r2_g:.2f}" if r2_g is not None else ""
+        draw_text(self.screen, f"Greedy{r2g_str}",
+                  lx + 28, ly - 5, self.fonts['xs'], color_g)
+
+        # A*
+        lx2 = lx + 140
+        pygame.draw.line(self.screen, color_a,
+                         (lx2, ly + 2), (lx2 + 22, ly + 2), 2)
+        pygame.draw.circle(self.screen, color_a, (lx2 + 11, ly + 2), 5)
+        pygame.draw.circle(self.screen, BG,       (lx2 + 11, ly + 2), 3)
+        r2a_str = f"  R²={r2_a:.2f}" if r2_a is not None else ""
+        draw_text(self.screen, f"A*{r2a_str}",
+                  lx2 + 28, ly - 5, self.fonts['xs'], color_a)
+
+        draw_text(self.screen, "X = difficulty (log₂ A* nodes)   ·   Y = normalised per algo",
+                  cx, ly + 14, self.fonts['xs'], (70, 70, 100), center=True)
 
     # ── tab 5: map compare ───────────────────────────────────────────────────
     def _draw_map_compare(self, mouse_pos):
@@ -862,8 +1040,10 @@ class AnalysisScreen:
 
         name, path = self.map_list[self.cmp_idx]
         cpx = self.data.get(name, {}).get('complexity', '?')
+        diff = self.data.get(name, {}).get('difficulty', '?')
+        dlbl = self.data.get(name, {}).get('difficulty_label', '')
         draw_text(self.screen,
-                  f"{name}   |   Complexity: {cpx}   |   {self.cmp_idx+1} / {len(self.map_list)}",
+                  f"{name}   |   Difficulty: {diff} ({dlbl})   |   {self.cmp_idx+1} / {len(self.map_list)}",
                   cx, 87, self.fonts['sm'], WHITE, center=True)
 
         # ── Two-column layout: board left, table right ────────────────────────

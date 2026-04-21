@@ -37,7 +37,9 @@ def load_map(filepath):
 def get_map_list():
     if not os.path.exists(MAPS_DIR):
         return []
-    files = sorted([f for f in os.listdir(MAPS_DIR) if f.endswith('.txt') and f != 'note.txt'])
+    files = [f for f in os.listdir(MAPS_DIR) if f.endswith('.txt') and f != 'note.txt']
+    # Sort by numeric part to ensure map1, map2, ... map10 order
+    files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))) if any(c.isdigit() for c in f) else 0)
     return [(f.replace('.txt','').replace('_',' ').title(), os.path.join(MAPS_DIR, f)) for f in files]
 
 def get_map_raw_grid(filepath):

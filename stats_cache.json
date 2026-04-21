@@ -1,140 +1,454 @@
 {
-  "fingerprint": "1e0ffc1d7937dbca94e1a6647db4e6b4",
+  "fingerprint": "a56cfff31ce909e80bce52664249f5f7",
   "data": {
     "Map1": {
-      "complexity": 10.6,
+      "difficulty": 17.06,
+      "difficulty_label": "Very Hard",
       "greedy": {
         "found": true,
-        "moves": 1,
-        "nodes": 2,
-        "time": 0.0,
-        "efficiency": 2.0
+        "moves": 151,
+        "nodes": 4080,
+        "time": 0.0712,
+        "efficiency": 27.02
       },
       "astar": {
         "found": true,
-        "moves": 1,
-        "nodes": 2,
-        "time": 0.0,
-        "efficiency": 2.0
+        "moves": 109,
+        "nodes": 136190,
+        "time": 1.888,
+        "efficiency": 1249.45
       }
     },
     "Map2": {
-      "complexity": 20.6,
+      "difficulty": 19.04,
+      "difficulty_label": "Very Hard",
       "greedy": {
-        "found": false,
-        "moves": 0,
-        "nodes": 14,
-        "time": 0.001,
-        "efficiency": null
+        "found": true,
+        "moves": 249,
+        "nodes": 20618,
+        "time": 0.3029,
+        "efficiency": 82.8
       },
       "astar": {
-        "found": false,
-        "moves": 0,
-        "nodes": 14,
-        "time": 0.0,
-        "efficiency": null
+        "found": true,
+        "moves": 219,
+        "nodes": 539158,
+        "time": 8.3451,
+        "efficiency": 2461.91
       }
     },
     "Map3": {
-      "complexity": 22.0,
+      "difficulty": 12.8,
+      "difficulty_label": "Very Hard",
       "greedy": {
         "found": true,
-        "moves": 3,
-        "nodes": 7,
-        "time": 0.0,
-        "efficiency": 2.33
+        "moves": 47,
+        "nodes": 1920,
+        "time": 0.0425,
+        "efficiency": 40.85
       },
       "astar": {
         "found": true,
-        "moves": 3,
-        "nodes": 7,
-        "time": 0.0,
-        "efficiency": 2.33
+        "moves": 43,
+        "nodes": 7144,
+        "time": 0.0918,
+        "efficiency": 166.14
       }
     },
     "Map4": {
-      "complexity": 33.94,
+      "difficulty": 18.0,
+      "difficulty_label": "Very Hard",
       "greedy": {
-        "found": false,
-        "moves": 0,
-        "nodes": 1538,
-        "time": 0.0261,
-        "efficiency": null
+        "found": true,
+        "moves": 236,
+        "nodes": 97067,
+        "time": 1.4492,
+        "efficiency": 411.3
       },
       "astar": {
-        "found": false,
-        "moves": 0,
-        "nodes": 1538,
-        "time": 0.0147,
-        "efficiency": null
+        "found": true,
+        "moves": 154,
+        "nodes": 261928,
+        "time": 3.638,
+        "efficiency": 1700.83
       }
     },
     "Map5": {
-      "complexity": 41.54,
+      "difficulty": 15.49,
+      "difficulty_label": "Very Hard",
       "greedy": {
-        "found": false,
-        "moves": 0,
-        "nodes": 5244,
-        "time": 0.058,
-        "efficiency": null
+        "found": true,
+        "moves": 158,
+        "nodes": 6467,
+        "time": 0.0745,
+        "efficiency": 40.93
       },
       "astar": {
-        "found": false,
-        "moves": 0,
-        "nodes": 5244,
-        "time": 0.053,
-        "efficiency": null
+        "found": true,
+        "moves": 114,
+        "nodes": 46113,
+        "time": 0.467,
+        "efficiency": 404.5
       }
     },
     "Map6": {
-      "complexity": 53.31,
+      "difficulty": 16.24,
+      "difficulty_label": "Very Hard",
       "greedy": {
         "found": true,
-        "moves": 34,
-        "nodes": 48269,
-        "time": 0.8304,
-        "efficiency": 1419.68
+        "moves": 87,
+        "nodes": 750,
+        "time": 0.0132,
+        "efficiency": 8.62
       },
       "astar": {
         "found": true,
-        "moves": 31,
-        "nodes": 74629,
-        "time": 1.1997,
-        "efficiency": 2407.39
+        "moves": 45,
+        "nodes": 77531,
+        "time": 1.453,
+        "efficiency": 1722.91
       }
     },
     "Map7": {
-      "complexity": 81.2,
+      "difficulty": 12.26,
+      "difficulty_label": "Very Hard",
       "greedy": {
         "found": true,
-        "moves": 25,
-        "nodes": 77,
-        "time": 0.001,
-        "efficiency": 3.08
+        "moves": 61,
+        "nodes": 2854,
+        "time": 0.0309,
+        "efficiency": 46.79
       },
       "astar": {
         "found": true,
-        "moves": 25,
-        "nodes": 62798,
-        "time": 1.2244,
-        "efficiency": 2511.92
+        "moves": 45,
+        "nodes": 4891,
+        "time": 0.0444,
+        "efficiency": 108.69
       }
     },
     "Map8": {
-      "complexity": 99.48,
+      "difficulty": 13.61,
+      "difficulty_label": "Very Hard",
       "greedy": {
         "found": true,
-        "moves": 33,
-        "nodes": 93,
-        "time": 0.002,
-        "efficiency": 2.82
+        "moves": 53,
+        "nodes": 106,
+        "time": 0.001,
+        "efficiency": 2.0
       },
       "astar": {
         "found": true,
-        "moves": 32,
-        "nodes": 680397,
-        "time": 27.712,
-        "efficiency": 21262.41
+        "moves": 53,
+        "nodes": 12544,
+        "time": 0.1372,
+        "efficiency": 236.68
+      }
+    },
+    "Map9": {
+      "difficulty": 15.05,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 55,
+        "nodes": 1291,
+        "time": 0.0225,
+        "efficiency": 23.47
+      },
+      "astar": {
+        "found": true,
+        "moves": 37,
+        "nodes": 33855,
+        "time": 0.561,
+        "efficiency": 915.0
+      }
+    },
+    "Map10": {
+      "difficulty": 11.97,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 27,
+        "nodes": 111,
+        "time": 0.001,
+        "efficiency": 4.11
+      },
+      "astar": {
+        "found": true,
+        "moves": 27,
+        "nodes": 4014,
+        "time": 0.0621,
+        "efficiency": 148.67
+      }
+    },
+    "Map11": {
+      "difficulty": 13.11,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 93,
+        "nodes": 455,
+        "time": 0.0041,
+        "efficiency": 4.89
+      },
+      "astar": {
+        "found": true,
+        "moves": 89,
+        "nodes": 8826,
+        "time": 0.0858,
+        "efficiency": 99.17
+      }
+    },
+    "Map12": {
+      "difficulty": 17.5,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 116,
+        "nodes": 173453,
+        "time": 2.9046,
+        "efficiency": 1495.28
+      },
+      "astar": {
+        "found": true,
+        "moves": 59,
+        "nodes": 184836,
+        "time": 3.07,
+        "efficiency": 3132.81
+      }
+    },
+    "Map13": {
+      "difficulty": 9.51,
+      "difficulty_label": "Hard",
+      "greedy": {
+        "found": true,
+        "moves": 33,
+        "nodes": 656,
+        "time": 0.0118,
+        "efficiency": 19.88
+      },
+      "astar": {
+        "found": true,
+        "moves": 33,
+        "nodes": 727,
+        "time": 0.0098,
+        "efficiency": 22.03
+      }
+    },
+    "Map14": {
+      "difficulty": 10.54,
+      "difficulty_label": "Hard",
+      "greedy": {
+        "found": true,
+        "moves": 52,
+        "nodes": 953,
+        "time": 0.0089,
+        "efficiency": 18.33
+      },
+      "astar": {
+        "found": true,
+        "moves": 50,
+        "nodes": 1491,
+        "time": 0.0127,
+        "efficiency": 29.82
+      }
+    },
+    "Map15": {
+      "difficulty": 15.46,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 148,
+        "nodes": 1262,
+        "time": 0.0168,
+        "efficiency": 8.53
+      },
+      "astar": {
+        "found": true,
+        "moves": 114,
+        "nodes": 44962,
+        "time": 0.5544,
+        "efficiency": 394.4
+      }
+    },
+    "Map16": {
+      "difficulty": 14.65,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 65,
+        "nodes": 322,
+        "time": 0.0051,
+        "efficiency": 4.95
+      },
+      "astar": {
+        "found": true,
+        "moves": 57,
+        "nodes": 25686,
+        "time": 0.3078,
+        "efficiency": 450.63
+      }
+    },
+    "Map17": {
+      "difficulty": 16.51,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 128,
+        "nodes": 15321,
+        "time": 0.2533,
+        "efficiency": 119.7
+      },
+      "astar": {
+        "found": true,
+        "moves": 79,
+        "nodes": 93136,
+        "time": 1.4329,
+        "efficiency": 1178.94
+      }
+    },
+    "Map18": {
+      "difficulty": 15.46,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 63,
+        "nodes": 504,
+        "time": 0.0086,
+        "efficiency": 8.0
+      },
+      "astar": {
+        "found": true,
+        "moves": 44,
+        "nodes": 44959,
+        "time": 0.7844,
+        "efficiency": 1021.8
+      }
+    },
+    "Map19": {
+      "difficulty": 12.56,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 31,
+        "nodes": 543,
+        "time": 0.0092,
+        "efficiency": 17.52
+      },
+      "astar": {
+        "found": true,
+        "moves": 29,
+        "nodes": 6040,
+        "time": 0.0796,
+        "efficiency": 208.28
+      }
+    },
+    "Map20": {
+      "difficulty": 12.46,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 36,
+        "nodes": 249,
+        "time": 0.004,
+        "efficiency": 6.92
+      },
+      "astar": {
+        "found": true,
+        "moves": 34,
+        "nodes": 5635,
+        "time": 0.089,
+        "efficiency": 165.74
+      }
+    },
+    "Map21": {
+      "difficulty": 15.56,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 106,
+        "nodes": 15169,
+        "time": 0.2419,
+        "efficiency": 143.1
+      },
+      "astar": {
+        "found": true,
+        "moves": 64,
+        "nodes": 48311,
+        "time": 0.6529,
+        "efficiency": 754.86
+      }
+    },
+    "Map22": {
+      "difficulty": 13.24,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 58,
+        "nodes": 4573,
+        "time": 0.0629,
+        "efficiency": 78.84
+      },
+      "astar": {
+        "found": true,
+        "moves": 56,
+        "nodes": 9659,
+        "time": 0.119,
+        "efficiency": 172.48
+      }
+    },
+    "Map23": {
+      "difficulty": 19.41,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 202,
+        "nodes": 134475,
+        "time": 2.9653,
+        "efficiency": 665.72
+      },
+      "astar": {
+        "found": true,
+        "moves": 137,
+        "nodes": 696979,
+        "time": 15.0095,
+        "efficiency": 5087.44
+      }
+    },
+    "Map24": {
+      "difficulty": 16.89,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 59,
+        "nodes": 10013,
+        "time": 0.2108,
+        "efficiency": 169.71
+      },
+      "astar": {
+        "found": true,
+        "moves": 55,
+        "nodes": 121278,
+        "time": 2.3105,
+        "efficiency": 2205.05
+      }
+    },
+    "Map25": {
+      "difficulty": 18.36,
+      "difficulty_label": "Very Hard",
+      "greedy": {
+        "found": true,
+        "moves": 157,
+        "nodes": 83994,
+        "time": 5.1005,
+        "efficiency": 534.99
+      },
+      "astar": {
+        "found": true,
+        "moves": 129,
+        "nodes": 336982,
+        "time": 15.8782,
+        "efficiency": 2612.26
       }
     }
   }
