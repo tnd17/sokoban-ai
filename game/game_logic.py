@@ -8,7 +8,8 @@ class SokobanGame:
         self.boxes = set()
         self.walls = set()
         self.load_map(map_file)
-
+        self.goals = frozenset(self.goals) # Thêm dòng này
+        
     def load_map(self, map_file):
         with open(map_file, 'r') as f:
             lines = f.readlines()
@@ -30,6 +31,7 @@ class SokobanGame:
                         self.player_pos = (r, c)
                         self.goals.add((r, c))
                 self.map_data.append(row_data)
+        
 
     def is_win(self, current_boxes):
         # Kiểm tra xem tất cả vị trí hộp có trùng với các vị trí đích không
@@ -61,3 +63,46 @@ class SokobanGame:
 
         # 3. Ô trống hoặc đích
         return new_p, boxes
+    
+    def get_successors(self, state):
+        """
+        Dựa trên state hiện tại, trả về danh sách các trạng thái kế tiếp có thể có.
+        Dùng để cung cấp dữ liệu cho vòng lặp của thuật toán A*.
+        """
+        successors = []
+        # 4 hướng di chuyển cơ bản
+        moves = {
+            'UP': (-1, 0),
+            'DOWN': (1, 0),
+            'LEFT': (0, -1),
+            'RIGHT': (0, 1)
+        }
+
+        for action_name, direction in moves.items():
+            # Sử dụng hàm get_next_state có sẵn của Ám Vân
+            result = self.get_next_state(state.player_pos, state.boxes, direction)
+            
+            if result:
+                new_player_pos, new_boxes = result
+                # QUAN TRỌNG: Chuyển set thành frozenset để A* có thể lưu vào visited (hashable)
+                successors.append((action_name, new_player_pos, frozenset(new_boxes)))
+        
+        return successors
+    
+    def display_board(self, player_pos, boxes):
+        """Hiển thị trạng thái hiện tại của game ra console"""
+        for r in range(len(self.map_data)):
+            row_str = ""
+            for c in range(len(self.map_data[r])):
+                pos = (r, c)
+                if pos == player_pos:
+                    row_str += "@" if pos not in self.goals else "+"
+                elif pos in boxes:
+                    row_str += "$" if pos not in self.goals else "*"
+                elif pos in self.walls:
+                    row_str += "#"
+                elif pos in self.goals:
+                    row_str += "."
+                else:
+                    row_str += " "
+            print(row_str)
