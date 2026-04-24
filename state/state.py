@@ -24,6 +24,13 @@ class State:
         self.move = move
         self.cost = cost
 
+    def __lt__(self, other):
+        """
+        Dùng để heapq so sánh khi hai trạng thái có cùng f_score.
+        Chúng ta ưu tiên trạng thái có cost thấp hơn.
+        """
+        return self.cost < other.cost
+    
     def __hash__(self):
         """
         Cho phép State dùng trong set / dict
@@ -110,3 +117,4 @@ def get_path(goal_state):
 
     path.reverse()
     return path
+
