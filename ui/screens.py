@@ -38,8 +38,8 @@ def draw_button(surf, text, rect, font, hover=False, active=False, color=None):
     draw_text(surf, text, rect.centerx, rect.centery, font, WHITE, center=True)
 
 def draw_arrow_btn(surf, rect, direction, font, hover=False):
-    """Nút mũi tên ◀ ▶."""
-    draw_button(surf, '◀' if direction == 'left' else '▶', rect, font, hover=hover)
+    """Nút mũi tên ← →."""
+    draw_button(surf, '←' if direction == 'left' else '→', rect, font, hover=hover)
 
 def draw_sidebar(surf, rect):
     pygame.draw.rect(surf, SIDEBAR_BG, rect)
@@ -277,23 +277,23 @@ class MenuScreen:
                   self.fonts['sm'], WHITE, center=True)
 
         # Solve button
-        lbl = "⏳ Solving…" if self.solving else "▶ Solve"
+        lbl = "Solving…" if self.solving else "Solve"
         draw_button(self.screen, lbl, btns['solve'], self.fonts['sm'],
                     hover=btns['solve'].collidepoint(mouse_pos),
                     active=self.solving, color=BTN_ACTIVE)
 
         # Pause button
         if self.animating:
-            pause_lbl = "▶ Resume" if self.paused else "⏸ Pause"
+            pause_lbl = "Resume" if self.paused else "Pause"
             draw_button(self.screen, pause_lbl, btns['pause'], self.fonts['sm'],
                         hover=btns['pause'].collidepoint(mouse_pos))
 
         # Reset button
-        draw_button(self.screen, "⟳ Reset", btns['reset'], self.fonts['sm'],
+        draw_button(self.screen, "Reset", btns['reset'], self.fonts['sm'],
                     hover=btns['reset'].collidepoint(mouse_pos))
 
         # Analysis button
-        draw_button(self.screen, "📊 Analysis", btns['analysis'], self.fonts['sm'],
+        draw_button(self.screen, "Analysis", btns['analysis'], self.fonts['sm'],
                     hover=btns['analysis'].collidepoint(mouse_pos))
 
         # ── Main area (Map display) ─────────────────────────────────────────────
@@ -475,7 +475,7 @@ class GameScreen:
         draw_text(self.screen, f"{self.map_name}  ·  {algo_label}",
                   W//2, 26, self.fonts['md'], TEXT_BRIGHT, center=True)
 
-        lbl = "⏳ Solving…" if self.solving else "▶ Solve"
+        lbl = "Solving…" if self.solving else "Solve"
         draw_button(self.screen, lbl, btns['solve'], self.fonts['sm'],
                     hover=btns['solve'].collidepoint(mouse_pos),
                     active=self.solving)
