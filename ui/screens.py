@@ -101,7 +101,7 @@ class MenuScreen:
     # ── worker ───────────────────────────────────────────────────────────────
     def _solve_worker(self):
         from heuristic.heuristics import get_heuristic
-        from search.algorithms import solve
+        from search.search_aglo import solve
         from utils.map_loader import get_map_raw_grid
         _, path = self.map_list[self.map_idx]
         grid = get_map_raw_grid(path)
@@ -111,7 +111,7 @@ class MenuScreen:
         self.solving      = False
 
     def _build_anim_states(self, actions):
-        from game.rules import move_player
+        from game.game_logic import move_player
         states = [self.initial_state]
         cur    = self.initial_state
         for a in actions:
@@ -358,7 +358,7 @@ class GameScreen:
     # ── worker ───────────────────────────────────────────────────────────────
     def _solve_worker(self):
         from heuristic.heuristics import get_heuristic
-        from search.algorithms import solve
+        from search.search_aglo import solve
         from utils.map_loader import get_map_raw_grid
         grid = get_map_raw_grid(self.map_path)
         h    = get_heuristic(self.algo, grid, self.initial_state.targets,
@@ -367,7 +367,7 @@ class GameScreen:
         self.solving      = False
 
     def _build_anim_states(self, actions):
-        from game.rules import move_player
+        from game.game_logic import move_player
         states = [self.initial_state]
         cur    = self.initial_state
         for a in actions:

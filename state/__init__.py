@@ -1,1 +1,1 @@
-from state.sokoban_state import SokobanState
+from state.state import SokobanState

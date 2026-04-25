@@ -1,1 +1,1 @@
-from search.algorithms import solve, SearchResult
+from search.search_aglo import solve, SearchResult

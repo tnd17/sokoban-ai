@@ -29,7 +29,7 @@ def run_stats(map_list, time_limit=30.0):
     """Chạy cả 2 thuật toán trên tất cả map, trả về dict kết quả."""
     from utils.map_loader import load_map, get_map_raw_grid
     from heuristic.heuristics import get_heuristic
-    from search.algorithms import solve
+    from search.search_aglo import solve
 
     results = {}
     for name, path in map_list:

@@ -2,7 +2,7 @@
 Đọc file bản đồ Sokoban.
 """
 import os
-from state.sokoban_state import SokobanState
+from state.state import SokobanState
 
 MAPS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'maps')
 

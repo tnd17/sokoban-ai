@@ -1,7 +1,7 @@
 """
 Quy tắc di chuyển nhân vật, đẩy thùng, kiểm tra hợp lệ và chiến thắng.
 """
-from state.sokoban_state import SokobanState
+from state.state import SokobanState
 
 DIRECTIONS = {'U':(-1,0), 'D':(1,0), 'L':(0,-1), 'R':(0,1)}
 

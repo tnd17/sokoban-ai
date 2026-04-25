@@ -1,1 +1,1 @@
-from game.rules import move_player, is_win
+from game.game_logic import move_player, is_win
