@@ -8,14 +8,14 @@
         "found": true,
         "moves": 151,
         "nodes": 4080,
-        "time": 0.0712,
+        "time": 0.0681,
         "efficiency": 27.02
       },
       "astar": {
         "found": true,
         "moves": 109,
         "nodes": 136190,
-        "time": 1.888,
+        "time": 1.8866,
         "efficiency": 1249.45
       }
     },
@@ -26,14 +26,14 @@
         "found": true,
         "moves": 249,
         "nodes": 20618,
-        "time": 0.3029,
+        "time": 0.2946,
         "efficiency": 82.8
       },
       "astar": {
         "found": true,
         "moves": 219,
         "nodes": 539158,
-        "time": 8.3451,
+        "time": 8.9226,
         "efficiency": 2461.91
       }
     },
@@ -44,14 +44,14 @@
         "found": true,
         "moves": 47,
         "nodes": 1920,
-        "time": 0.0425,
+        "time": 0.0309,
         "efficiency": 40.85
       },
       "astar": {
         "found": true,
         "moves": 43,
         "nodes": 7144,
-        "time": 0.0918,
+        "time": 0.095,
         "efficiency": 166.14
       }
     },
@@ -62,14 +62,14 @@
         "found": true,
         "moves": 236,
         "nodes": 97067,
-        "time": 1.4492,
+        "time": 1.5217,
         "efficiency": 411.3
       },
       "astar": {
         "found": true,
         "moves": 154,
         "nodes": 261928,
-        "time": 3.638,
+        "time": 3.8746,
         "efficiency": 1700.83
       }
     },
@@ -80,14 +80,14 @@
         "found": true,
         "moves": 158,
         "nodes": 6467,
-        "time": 0.0745,
+        "time": 0.0886,
         "efficiency": 40.93
       },
       "astar": {
         "found": true,
         "moves": 114,
         "nodes": 46113,
-        "time": 0.467,
+        "time": 0.4933,
         "efficiency": 404.5
       }
     },
@@ -98,14 +98,14 @@
         "found": true,
         "moves": 87,
         "nodes": 750,
-        "time": 0.0132,
+        "time": 0.0123,
         "efficiency": 8.62
       },
       "astar": {
         "found": true,
         "moves": 45,
         "nodes": 77531,
-        "time": 1.453,
+        "time": 1.4561,
         "efficiency": 1722.91
       }
     },
@@ -116,14 +116,14 @@
         "found": true,
         "moves": 61,
         "nodes": 2854,
-        "time": 0.0309,
+        "time": 0.0325,
         "efficiency": 46.79
       },
       "astar": {
         "found": true,
         "moves": 45,
         "nodes": 4891,
-        "time": 0.0444,
+        "time": 0.0474,
         "efficiency": 108.69
       }
     },
@@ -134,14 +134,14 @@
         "found": true,
         "moves": 53,
         "nodes": 106,
-        "time": 0.001,
+        "time": 0.0026,
         "efficiency": 2.0
       },
       "astar": {
         "found": true,
         "moves": 53,
         "nodes": 12544,
-        "time": 0.1372,
+        "time": 0.1449,
         "efficiency": 236.68
       }
     },
@@ -152,14 +152,14 @@
         "found": true,
         "moves": 55,
         "nodes": 1291,
-        "time": 0.0225,
+        "time": 0.0231,
         "efficiency": 23.47
       },
       "astar": {
         "found": true,
         "moves": 37,
         "nodes": 33855,
-        "time": 0.561,
+        "time": 0.5985,
         "efficiency": 915.0
       }
     },
@@ -177,7 +177,7 @@
         "found": true,
         "moves": 27,
         "nodes": 4014,
-        "time": 0.0621,
+        "time": 0.0704,
         "efficiency": 148.67
       }
     },
@@ -188,14 +188,14 @@
         "found": true,
         "moves": 93,
         "nodes": 455,
-        "time": 0.0041,
+        "time": 0.0059,
         "efficiency": 4.89
       },
       "astar": {
         "found": true,
         "moves": 89,
         "nodes": 8826,
-        "time": 0.0858,
+        "time": 0.097,
         "efficiency": 99.17
       }
     },
@@ -206,14 +206,14 @@
         "found": true,
         "moves": 116,
         "nodes": 173453,
-        "time": 2.9046,
+        "time": 3.1478,
         "efficiency": 1495.28
       },
       "astar": {
         "found": true,
         "moves": 59,
         "nodes": 184836,
-        "time": 3.07,
+        "time": 3.3147,
         "efficiency": 3132.81
       }
     },
@@ -224,14 +224,14 @@
         "found": true,
         "moves": 33,
         "nodes": 656,
-        "time": 0.0118,
+        "time": 0.0144,
         "efficiency": 19.88
       },
       "astar": {
         "found": true,
         "moves": 33,
         "nodes": 727,
-        "time": 0.0098,
+        "time": 0.0115,
         "efficiency": 22.03
       }
     },
@@ -242,14 +242,14 @@
         "found": true,
         "moves": 52,
         "nodes": 953,
-        "time": 0.0089,
+        "time": 0.0111,
         "efficiency": 18.33
       },
       "astar": {
         "found": true,
         "moves": 50,
         "nodes": 1491,
-        "time": 0.0127,
+        "time": 0.0178,
         "efficiency": 29.82
       }
     },
@@ -260,14 +260,14 @@
         "found": true,
         "moves": 148,
         "nodes": 1262,
-        "time": 0.0168,
+        "time": 0.0402,
         "efficiency": 8.53
       },
       "astar": {
         "found": true,
         "moves": 114,
         "nodes": 44962,
-        "time": 0.5544,
+        "time": 0.5902,
         "efficiency": 394.4
       }
     },
@@ -285,7 +285,7 @@
         "found": true,
         "moves": 57,
         "nodes": 25686,
-        "time": 0.3078,
+        "time": 0.3273,
         "efficiency": 450.63
       }
     },
@@ -296,14 +296,14 @@
         "found": true,
         "moves": 128,
         "nodes": 15321,
-        "time": 0.2533,
+        "time": 0.2741,
         "efficiency": 119.7
       },
       "astar": {
         "found": true,
         "moves": 79,
         "nodes": 93136,
-        "time": 1.4329,
+        "time": 1.4636,
         "efficiency": 1178.94
       }
     },
@@ -314,14 +314,14 @@
         "found": true,
         "moves": 63,
         "nodes": 504,
-        "time": 0.0086,
+        "time": 0.0095,
         "efficiency": 8.0
       },
       "astar": {
         "found": true,
         "moves": 44,
         "nodes": 44959,
-        "time": 0.7844,
+        "time": 0.8241,
         "efficiency": 1021.8
       }
     },
@@ -332,14 +332,14 @@
         "found": true,
         "moves": 31,
         "nodes": 543,
-        "time": 0.0092,
+        "time": 0.0203,
         "efficiency": 17.52
       },
       "astar": {
         "found": true,
         "moves": 29,
         "nodes": 6040,
-        "time": 0.0796,
+        "time": 0.0881,
         "efficiency": 208.28
       }
     },
@@ -350,14 +350,14 @@
         "found": true,
         "moves": 36,
         "nodes": 249,
-        "time": 0.004,
+        "time": 0.0035,
         "efficiency": 6.92
       },
       "astar": {
         "found": true,
         "moves": 34,
         "nodes": 5635,
-        "time": 0.089,
+        "time": 0.0978,
         "efficiency": 165.74
       }
     },
@@ -368,14 +368,14 @@
         "found": true,
         "moves": 106,
         "nodes": 15169,
-        "time": 0.2419,
+        "time": 0.2934,
         "efficiency": 143.1
       },
       "astar": {
         "found": true,
         "moves": 64,
         "nodes": 48311,
-        "time": 0.6529,
+        "time": 0.7462,
         "efficiency": 754.86
       }
     },
@@ -386,14 +386,14 @@
         "found": true,
         "moves": 58,
         "nodes": 4573,
-        "time": 0.0629,
+        "time": 0.0708,
         "efficiency": 78.84
       },
       "astar": {
         "found": true,
         "moves": 56,
         "nodes": 9659,
-        "time": 0.119,
+        "time": 0.1327,
         "efficiency": 172.48
       }
     },
@@ -404,14 +404,14 @@
         "found": true,
         "moves": 202,
         "nodes": 134475,
-        "time": 2.9653,
+        "time": 3.1041,
         "efficiency": 665.72
       },
       "astar": {
         "found": true,
         "moves": 137,
         "nodes": 696979,
-        "time": 15.0095,
+        "time": 15.9233,
         "efficiency": 5087.44
       }
     },
@@ -422,14 +422,14 @@
         "found": true,
         "moves": 59,
         "nodes": 10013,
-        "time": 0.2108,
+        "time": 0.2278,
         "efficiency": 169.71
       },
       "astar": {
         "found": true,
         "moves": 55,
         "nodes": 121278,
-        "time": 2.3105,
+        "time": 2.5099,
         "efficiency": 2205.05
       }
     },
@@ -440,14 +440,14 @@
         "found": true,
         "moves": 157,
         "nodes": 83994,
-        "time": 5.1005,
+        "time": 2.2414,
         "efficiency": 534.99
       },
       "astar": {
         "found": true,
         "moves": 129,
         "nodes": 336982,
-        "time": 15.8782,
+        "time": 7.3879,
         "efficiency": 2612.26
       }
     }
