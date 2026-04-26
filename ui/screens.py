@@ -640,10 +640,10 @@ class AnalysisScreen:
         content_w = W - ANALYSIS_SW - 20
         funcs = [
             self._draw_overview,
-            lambda: self._draw_line_chart('time',  '⏱  Time (normalised per algo)', CHART_G, CHART_A),
-            lambda: self._draw_line_chart('moves', '👣  Moves (normalised per algo)', CHART_G, CHART_A),
-            lambda: self._draw_line_chart('nodes', '🔵  Nodes (normalised per algo)', CHART_G, CHART_A),
-            lambda: self._draw_line_chart('efficiency','⚡  Efficiency nodes/move (normalised)', CHART_G, CHART_A),
+            lambda: self._draw_line_chart('time',  'Time (normalised per algo)', CHART_G, CHART_A),
+            lambda: self._draw_line_chart('moves', 'Moves (raw value)', CHART_G, CHART_A),
+            lambda: self._draw_line_chart('nodes', 'Nodes (normalised per algo)', CHART_G, CHART_A),
+            lambda: self._draw_line_chart('efficiency','Efficiency nodes/move (normalised)', CHART_G, CHART_A),
             lambda: self._draw_map_compare(mouse_pos),
         ]
         funcs[self.tab]()
@@ -764,9 +764,26 @@ class AnalysisScreen:
             if hi == lo:
                 return [0.5 if v is not None else None for v in vals]
             return [(v - lo) / (hi - lo) if v is not None else None for v in vals]
+        
+        def normalise_moves_combined(vals_g, vals_a):
+            """
+            Scale cả greedy lẫn A* trên cùng một thang [lo, hi] chung
+            để 2 algo có thể so sánh trực tiếp trên đồ thị.
+            """
+            all_vals = [v for v in vals_g + vals_a if v is not None]
+            if not all_vals:
+                return [None]*len(vals_g), [None]*len(vals_a)
+            lo, hi = min(all_vals), max(all_vals)
+            rng = hi - lo if hi != lo else 1
+            def scale(vals):
+                return [(v - lo) / rng if v is not None else None for v in vals]
+            return scale(vals_g), scale(vals_a), lo, hi
 
-        norm_g = normalise(raw_g)
-        norm_a = normalise(raw_a)
+        if metric == 'moves':
+            norm_g, norm_a, moves_lo, moves_hi = normalise_moves_combined(raw_g, raw_a)
+        else:
+            norm_g = normalise(raw_g)
+            norm_a = normalise(raw_a)
 
         # X chuẩn hóa để vẽ lên chart (diff → pixel)
         diff_clean = [v for v in diff_vals if v is not None]
@@ -787,7 +804,12 @@ class AnalysisScreen:
             yp  = chart_y + int(chart_h * k / 5)
             pygame.draw.line(self.screen, CHART_GRID,
                              (chart_x, yp), (chart_x + chart_w, yp), 1)
-            lbl = f"{(1 - k/5)*100:.0f}%"
+            if metric == 'moves':
+                # Hiển thị giá trị thật (số moves) thay vì %
+                actual_val = moves_lo + (1 - k/5) * (moves_hi - moves_lo)
+                lbl = f"{int(round(actual_val))}"
+            else:
+                lbl = f"{(1 - k/5)*100:.0f}%"
             draw_text(self.screen, lbl, chart_x - 8, yp - 7,
                       self.fonts['xs'], TEXT_DIM, right=True)
 
@@ -1017,7 +1039,12 @@ class AnalysisScreen:
         draw_text(self.screen, f"A*{r2a_str}",
                   lx2 + 28, ly - 5, self.fonts['xs'], color_a)
 
-        draw_text(self.screen, "X = difficulty (log₂ A* nodes)   ·   Y = normalised per algo",
+        if metric == 'moves':
+            y_label = "X = difficulty (log2 A* nodes)   -   Y = moves (raw value, shared scale)"
+        else:
+            y_label = "X = difficulty (log2 A* nodes)   -   Y = normalised per algo"
+
+        draw_text(self.screen, y_label,
                   cx, ly + 14, self.fonts['xs'], (70, 70, 100), center=True)
 
     # ── tab 5: map compare ───────────────────────────────────────────────────
